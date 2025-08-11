@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Katalog - E-Library{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Filters -->
+    <div class="bg-white shadow rounded-lg p-6 mb-6">
+        <h2 class="text-lg font-semibold text-gray-900 mb-4">Filter Buku</h2>
+        <form method="GET" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Pencarian</label>
+                    <input type="text" name="search" value="{{ current_filter.search|default:'' }}" 
+                           placeholder="Cari berdasarkan judul, tahun, atau deskripsi..."
+                           class="form-input">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Genre</label>
+                    <select name="genre" class="form-select">
+                        <option value="">Semua Genre</option>
+                        <option value="fiksi" {% if current_filter.genre == 'fiksi' %}selected{% endif %}>Fiksi</option>
+                        <option value="komik" {% if current_filter.genre == 'komik' %}selected{% endif %}>Komik</option>
+                        <option value="motivasi" {% if current_filter.genre == 'motivasi' %}selected{% endif %}>Motivasi</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Favorit</label>
+                    <select name="favorites" class="form-select">
+                        <option value="">Semua Buku</option>
+                        <option value="1" {% if current_filter.favorites == '1' %}selected{% endif %}>Buku Favorit</option>
+                    </select>
+                </div>
+            </div>
+            <div>
+                <button type="submit" class="btn-primary">Filter</button>
+                <a href="{% url 'books:catalog' %}" class="btn-secondary ml-2">Reset</a>
+            </div>
+        </form>
+    </div>
+
+    <div class="bg-white shadow rounded-lg">
+        {% if page_obj %}
+            <div class="divide-y divide-gray-200">
+                {% for book in page_obj %}
+                    <div class="p-6 flex items-start space-x-4">
+                        <!-- Book Cover -->
+                        <div class="flex-shrink-0">
+                            {% if book.get_cover_path %}
+                                <img src="{{ book.get_cover_path }}" alt="{{ book.title }}" 
+                                     class="h-32 w-24 object-cover rounded-lg shadow-md">
+                            {% else %}
+                                <div class="h-32 w-24 rounded-lg shadow-md default-book-cover">
+                                    <i class="fas fa-book text-4xl"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Book Info -->
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-gray-900">
+                                        <a href="{% url 'books:detail' book.id %}" class="hover:text-blue-600">
+                                            {{ book.title }}
+                                        </a>
+                                    </h3>
+                                    <p class="text-sm text-gray-600 mt-1">
+                                        oleh {{ book.author }} • {{ book.year }} • {{ book.get_genre_display }}
+                                    </p>
+                                    <p class="text-gray-700 mt-2 line-clamp-3">
+                                        {{ book.description|truncatewords:30 }}
+                                    </p>
+                                </div>
+                                
+                                <!-- Favorite Button -->
+                                <div class="ml-4">
+                                    {% csrf_token %}
+                                    <button onclick="toggleFavorite({{ book.id }})" 
+                                            class="text-2xl focus:outline-none hover:scale-110 transition-transform">
+                                        <i id="favorite-{{ book.id }}" 
+                                           class="{% if book.id in user_favorites %}fas text-yellow-500{% else %}far text-gray-400{% endif %} fa-star"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+                <div class="bg-gray-50 px-6 py-4 flex items-center justify-between border-t border-gray-200">
+                    <div class="flex-1 flex justify-between sm:hidden">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.genre %}&genre={{ request.GET.genre }}{% endif %}{% if request.GET.favorites %}&favorites={{ request.GET.favorites }}{% endif %}" 
+                               class="btn-secondary">Previous</a>
+                        {% endif %}
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.genre %}&genre={{ request.GET.genre }}{% endif %}{% if request.GET.favorites %}&favorites={{ request.GET.favorites }}{% endif %}" 
+                               class="btn-secondary">Next</a>
+                        {% endif %}
+                    </div>
+                    <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-center">
+                        <div class="flex space-x-2">
+                            <!-- First Page -->
+                            {% if page_obj.has_previous %}
+                                <a href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.genre %}&genre={{ request.GET.genre }}{% endif %}{% if request.GET.favorites %}&favorites={{ request.GET.favorites }}{% endif %}" 
+                                   class="btn-secondary">First</a>
+                            {% endif %}
+                            
+                            <!-- Previous Page -->
+                            {% if page_obj.has_previous %}
+                                <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.genre %}&genre={{ request.GET.genre }}{% endif %}{% if request.GET.favorites %}&favorites={{ request.GET.favorites }}{% endif %}" 
+                                   class="btn-secondary">Prev</a>
+                            {% endif %}
+                            
+                            <!-- Page Numbers -->
+                            <span class="px-3 py-2 text-sm text-gray-700">
+                                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                            </span>
+                            
+                            <!-- Next Page -->
+                            {% if page_obj.has_next %}
+                                <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.genre %}&genre={{ request.GET.genre }}{% endif %}{% if request.GET.favorites %}&favorites={{ request.GET.favorites }}{% endif %}" 
+                                   class="btn-secondary">Next</a>
+                            {% endif %}
+                            
+                            <!-- Last Page -->
+                            {% if page_obj.has_next %}
+                                <a href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.genre %}&genre={{ request.GET.genre }}{% endif %}{% if request.GET.favorites %}&favorites={{ request.GET.favorites }}{% endif %}" 
+                                   class="btn-secondary">Last</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="p-12 text-center">
+                <i class="fas fa-book text-gray-400 text-6xl mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Tidak ada buku ditemukan</h3>
+                <p class="text-gray-600">Coba ubah filter pencarian atau tambahkan buku baru.</p>
+                <a href="{% url 'books:upload' %}" class="btn-primary mt-4">Upload Buku Pertama</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

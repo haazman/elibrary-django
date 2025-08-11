@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Profil - E-Library{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white shadow rounded-lg p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">Edit Profil</h1>
+        
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            <div>
+                <label for="{{ form.profile_picture.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Foto Profil
+                </label>
+                <div class="mt-1 flex items-center space-x-4">
+                    {% if user.profile_picture %}
+                        <img class="h-16 w-16 rounded-full object-cover" src="{{ user.profile_picture.url }}" alt="Current Profile Picture">
+                    {% else %}
+                        <div class="h-16 w-16 rounded-full bg-gray-300 flex items-center justify-center">
+                            <i class="fas fa-user text-gray-600"></i>
+                        </div>
+                    {% endif %}
+                    <div class="flex-1">
+                        {{ form.profile_picture }}
+                    </div>
+                </div>
+                {% if form.profile_picture.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.profile_picture.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.first_name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Nama Depan
+                </label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.first_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.last_name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Nama Belakang
+                </label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.last_name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Email
+                </label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.email.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="flex space-x-4">
+                <button type="submit" class="btn-success">
+                    Simpan
+                </button>
+                <a href="{% url 'accounts:profile' %}" class="btn-secondary">
+                    Batal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

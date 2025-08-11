@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Buku - E-Library{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white shadow rounded-lg p-6">
+        <h1 class="text-2xl font-bold text-gray-900 mb-6">Upload Buku Baru</h1>
+        
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            <div>
+                <label for="{{ form.pdf_file.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    File PDF <span class="text-red-500">*</span>
+                </label>
+                {{ form.pdf_file }}
+                <p class="mt-1 text-xs text-gray-500">Hanya file PDF yang diperbolehkan.</p>
+                {% if form.pdf_file.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.pdf_file.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Judul <span class="text-red-500">*</span>
+                </label>
+                {{ form.title }}
+                {% if form.title.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.title.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Deskripsi <span class="text-red-500">*</span>
+                </label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.author.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Penulis <span class="text-red-500">*</span>
+                </label>
+                {{ form.author }}
+                {% if form.author.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.author.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.year.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Tahun Terbit <span class="text-red-500">*</span>
+                </label>
+                {{ form.year }}
+                {% if form.year.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.year.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div>
+                <label for="{{ form.genre.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                    Genre <span class="text-red-500">*</span>
+                </label>
+                {{ form.genre }}
+                {% if form.genre.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.genre.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <div class="flex space-x-4">
+                <button type="submit" class="btn-primary">
+                    <i class="fas fa-upload mr-2"></i>Upload
+                </button>
+                <a href="{% url 'books:catalog' %}" class="btn-secondary">
+                    Batal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

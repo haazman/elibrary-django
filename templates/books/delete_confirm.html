@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block title %}Hapus {{ book.title }} - E-Library{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white shadow rounded-lg p-6">
+        <div class="flex items-center mb-6">
+            <i class="fas fa-exclamation-triangle text-red-500 text-3xl mr-4"></i>
+            <h1 class="text-2xl font-bold text-gray-900">Konfirmasi Hapus Buku</h1>
+        </div>
+        
+        <div class="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+            <p class="text-red-800">
+                Apakah Anda yakin ingin menghapus buku <strong>"{{ book.title }}"</strong>? 
+                Semua data terkait termasuk file PDF dan halaman-halaman buku akan dihapus secara permanen.
+            </p>
+        </div>
+        
+        <div class="flex items-start space-x-4 mb-6">
+            <img src="{{ book.get_cover_path }}" alt="{{ book.title }}" 
+                 class="h-32 w-24 object-cover rounded-lg shadow-md">
+            <div>
+                <h3 class="text-lg font-semibold text-gray-900">{{ book.title }}</h3>
+                <p class="text-gray-600">oleh {{ book.author }}</p>
+                <p class="text-gray-600">{{ book.year }} • {{ book.get_genre_display }}</p>
+                <p class="text-gray-700 mt-2">{{ book.description|truncatewords:20 }}</p>
+            </div>
+        </div>
+        
+        <form method="post" class="flex space-x-4">
+            {% csrf_token %}
+            <a href="{% url 'books:detail' book.id %}" class="btn-secondary">
+                Batal
+            </a>
+            <button type="submit" class="btn-danger">
+                <i class="fas fa-trash mr-2"></i>Hapus
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        if (!confirm('Apakah Anda benar-benar yakin ingin menghapus buku ini? Tindakan ini tidak dapat dibatalkan.')) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}

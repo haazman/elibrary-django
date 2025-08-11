@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}E-Library{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .form-input {
+            @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+        }
+        .form-textarea {
+            @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical;
+        }
+        .form-select {
+            @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
+        }
+        .btn-primary {
+            @apply bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline;
+        }
+        .btn-secondary {
+            @apply bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline;
+        }
+        .btn-danger {
+            @apply bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline;
+        }
+        .btn-success {
+            @apply bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline;
+        }
+        .default-book-cover {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    {% if user.is_authenticated %}
+        <!-- Top Navbar -->
+        <nav class="bg-white shadow-lg">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex justify-between items-center h-16">
+                    <!-- Logo and Navigation -->
+                    <div class="flex items-center space-x-8">
+                        <a href="{% url 'books:catalog' %}" class="text-xl font-bold text-gray-800">E-Library</a>
+                        <a href="{% url 'books:catalog' %}" class="text-gray-600 hover:text-gray-900">Katalog</a>
+                        <a href="{% url 'accounts:profile' %}" class="text-gray-600 hover:text-gray-900">Profil</a>
+                        <a href="{% url 'books:upload' %}" class="btn-primary">Upload</a>
+                    </div>
+                    
+                    <!-- Search Form -->
+                    <div class="flex-1 max-w-md mx-8">
+                        <form method="GET" action="{% url 'books:catalog' %}" class="flex">
+                            <div class="relative flex-1">
+                                <input type="text" name="search" placeholder="Cari buku..." 
+                                       value="{{ request.GET.search }}"
+                                       class="form-input pr-10">
+                                <button type="submit" class="absolute right-3 top-1/2 transform -translate-y-1/2">
+                                    <i class="fas fa-search text-gray-400"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <!-- Logout Button -->
+                    <div>
+                        <a href="{% url 'accounts:logout' %}" class="text-gray-600 hover:text-gray-900">Keluar</a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    {% endif %}
+
+    <!-- Flash Messages -->
+    {% if messages %}
+        <div class="max-w-7xl mx-auto px-4 mt-4">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} mb-4 p-4 rounded-md {% if message.tags == 'error' %}bg-red-100 border border-red-400 text-red-700{% elif message.tags == 'success' %}bg-green-100 border border-green-400 text-green-700{% elif message.tags == 'warning' %}bg-yellow-100 border border-yellow-400 text-yellow-700{% else %}bg-blue-100 border border-blue-400 text-blue-700{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <main class="{% if user.is_authenticated %}py-8{% else %}py-0{% endif %}">
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {% if user.is_authenticated %}
+        <footer class="bg-white shadow-lg mt-12">
+            <div class="max-w-7xl mx-auto px-4 py-6">
+                <div class="text-center text-gray-600">
+                    <p>&copy; 2025 E-Library. All rights reserved.</p>
+                </div>
+            </div>
+        </footer>
+    {% endif %}
+
+    <!-- JavaScript for password visibility toggle -->
+    <script>
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+
+        function toggleFavorite(bookId) {
+            fetch(`/books/book/${bookId}/toggle-favorite/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                const icon = document.getElementById(`favorite-${bookId}`);
+                if (data.is_favorite) {
+                    icon.classList.remove('far');
+                    icon.classList.add('fas');
+                    icon.classList.add('text-yellow-500');
+                } else {
+                    icon.classList.remove('fas');
+                    icon.classList.add('far');
+                    icon.classList.remove('text-yellow-500');
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
+
+        function confirmDelete(message) {
+            return confirm(message || 'Apakah Anda yakin ingin menghapus item ini?');
+        }
+    </script>
+</body>
+</html>

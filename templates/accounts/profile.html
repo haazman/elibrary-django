@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Profil - E-Library{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="bg-white shadow rounded-lg p-6">
+        <div class="flex items-center space-x-6">
+            <div class="flex-shrink-0">
+                {% if user.profile_picture %}
+                    <img class="h-20 w-20 rounded-full object-cover" src="{{ user.profile_picture.url }}" alt="Profile Picture">
+                {% else %}
+                    <div class="h-20 w-20 rounded-full bg-gray-300 flex items-center justify-center">
+                        <i class="fas fa-user text-gray-600 text-2xl"></i>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="flex-1">
+                <h1 class="text-2xl font-bold text-gray-900">
+                    {% if user.first_name or user.last_name %}
+                        {{ user.first_name }} {{ user.last_name }}
+                    {% else %}
+                        {{ user.username }}
+                    {% endif %}
+                </h1>
+                <p class="text-gray-600">{{ user.email }}</p>
+            </div>
+        </div>
+
+        <div class="mt-6 flex space-x-4">
+            <a href="{% url 'accounts:edit_profile' %}" class="btn-primary">
+                Edit Profil
+            </a>
+            <a href="{% url 'accounts:change_password' %}" class="btn-secondary">
+                Ubah Password
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
