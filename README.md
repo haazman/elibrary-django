@@ -34,34 +34,49 @@ cd django_ciheul
 ```
 *Or download and extract the ZIP file*
 
-### 2. Install Required Dependencies
+### 2. Create Virtual Environment
 ```bash
-pip install django PyMuPDF gensim scikit-learn nltk pillow
+python -m venv .venv
 ```
 
-### 3. Set Up the Database
+### 3. Activate Virtual Environment
+**Windows:**
+```bash
+.venv\Scripts\activate
+```
+**macOS/Linux:**
+```bash
+source .venv/bin/activate
+```
+
+### 4. Install Required Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 5. Set Up the Database
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
-### 4. Download NLTK Data (Required for Text Analysis)
+### 6. Download NLTK Data (Required for Text Analysis)
 ```bash
 python manage.py download_nltk
 ```
 
-### 5. Create Admin User
+### 7. Create Admin User
 ```bash
 python manage.py createsuperuser
 ```
 Follow the prompts to create an admin account.
 
-### 6. Run the Development Server
+### 8. Run the Development Server
 ```bash
 python manage.py runserver
 ```
 
-### 7. Access the Application
+### 9. Access the Application
 - **Main Application**: http://127.0.0.1:8000
 - **Admin Panel**: http://127.0.0.1:8000/admin
 
